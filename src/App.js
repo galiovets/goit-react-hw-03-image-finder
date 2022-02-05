@@ -1,7 +1,8 @@
 import './App.css';
+import SearchBar from './components/Searchbar';
 
 function App() {
-  return <div className="App">Test</div>;
+  return <SearchBar />;
 }
 
 export default App;
