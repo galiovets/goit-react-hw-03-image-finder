@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import toast from 'react-hot-toast';
 import PropTypes from 'prop-types';
 import { Icon } from '../Icon';
 
@@ -17,6 +18,19 @@ class Searchbar extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
+    if (this.state.query.trim() === '') {
+      toast.error('Please enter your request', {
+        duration: 3000,
+        style: {
+          borderRadius: '10px',
+          background: 'white',
+          color: 'black',
+          padding: '10px',
+          textAlign: 'center',
+        },
+      });
+      return;
+    }
     this.props.onSubmit(this.state.query);
     this.setState({ query: '' });
   };

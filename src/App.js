@@ -1,6 +1,8 @@
 import { Component } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import './App.css';
 import { getFetch } from './services/API';
+import Loader from './components/Loader';
 import Container from './components/Container';
 import SearchBar from './components/Searchbar';
 import ImageGallery from './components/ImageGallery';
@@ -14,6 +16,7 @@ class App extends Component {
     images: [],
     showModal: false,
     largeImageURL: '',
+    loading: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -22,15 +25,27 @@ class App extends Component {
       this.setState({
         page: 1,
         images: [],
+        loading: true,
       });
       getFetch(searchValue).then(images => {
         if (images.length === 0) {
-          alert(`Sorry, no images were found`);
+          toast.error('Sorry, nothing was found', {
+            duration: 3000,
+            style: {
+              borderRadius: '10px',
+              background: 'white',
+              color: 'black',
+              padding: '10px',
+              textAlign: 'center',
+            },
+          });
+          return this.setState({ loading: false });
         } else {
           this.setState(prevState => {
             return {
               images: [...prevState.images, ...images],
               page: prevState.page + 1,
+              loading: false,
             };
           });
         }
@@ -77,10 +92,12 @@ class App extends Component {
   };
 
   render() {
-    const { images, showModal, largeImageURL } = this.state;
+    const { loading, images, showModal, largeImageURL } = this.state;
     return (
       <Container>
+        <Toaster position="bottom-center" />
         <SearchBar onSubmit={this.getSearchValue} />
+        {loading && <Loader />}
         <ImageGallery images={images} onModalOpen={this.onOpenModal} />
         {images.length > 0 ? (
           <Button
