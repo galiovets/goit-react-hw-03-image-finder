@@ -1,9 +1,30 @@
-import { Component } from 'react';
+import PropTypes from 'prop-types';
+import ImageGalleryItem from '../ImageGalleryItem';
 
-class ImageGallery extends Component {
-  render() {
-    return <ul class="gallery"></ul>;
-  }
+function ImageGallery({ images, onModalOpen }) {
+  return (
+    <ul className="ImageGallery">
+      {images.map(({ id, tags, webformatURL, largeImageURL }) => {
+        return (
+          <ImageGalleryItem
+            key={id}
+            tags={tags}
+            webformatURL={webformatURL}
+            largeImageURL={largeImageURL}
+            onModalOpen={onModalOpen}
+          />
+        );
+      })}
+    </ul>
+  );
 }
+
+ImageGallery.propTypes = {
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    }),
+  ),
+};
 
 export default ImageGallery;

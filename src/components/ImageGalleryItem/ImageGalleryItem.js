@@ -1,13 +1,24 @@
-import { Component } from 'react';
+import PropTypes from 'prop-types';
 
-class ImageGalleryItem extends Component {
-  render() {
-    return (
-      <li class="gallery-item">
-        <img src="" alt="" />
-      </li>
-    );
-  }
+function ImageGalleryItem({ webformatURL, tags, largeImageURL, onModalOpen }) {
+  return (
+    <li className="ImageGalleryItem">
+      <img
+        src={webformatURL}
+        alt={tags}
+        data-source={largeImageURL}
+        className="ImageGalleryItem-image"
+        onClick={onModalOpen}
+      />
+    </li>
+  );
 }
+
+ImageGalleryItem.propTypes = {
+  webformatURL: PropTypes.string.isRequired,
+  tags: PropTypes.string,
+  largeImageURL: PropTypes.string,
+  onOpenModal: PropTypes.func,
+};
 
 export default ImageGalleryItem;
