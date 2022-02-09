@@ -20,14 +20,14 @@ class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { searchValue, page } = this.state;
+    const { searchValue } = this.state;
     if (searchValue !== prevState.searchValue) {
       this.setState({
         page: 1,
         images: [],
         loading: true,
       });
-      getFetch(searchValue, page).then(images => {
+      getFetch(searchValue, 1).then(images => {
         if (images.hits.length === 0) {
           toast.error('Sorry, nothing was found', {
             duration: 3000,
