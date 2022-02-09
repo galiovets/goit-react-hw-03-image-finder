@@ -20,15 +20,15 @@ class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { searchValue } = this.state;
+    const { searchValue, page } = this.state;
     if (searchValue !== prevState.searchValue) {
       this.setState({
         page: 1,
         images: [],
         loading: true,
       });
-      getFetch(searchValue).then(images => {
-        if (images.length === 0) {
+      getFetch(searchValue, page).then(images => {
+        if (images.hits.length === 0) {
           toast.error('Sorry, nothing was found', {
             duration: 3000,
             style: {
@@ -43,7 +43,7 @@ class App extends Component {
         } else {
           this.setState(prevState => {
             return {
-              images: [...prevState.images, ...images],
+              images: [...prevState.images, ...images.hits],
               page: prevState.page + 1,
               loading: false,
             };
@@ -62,7 +62,7 @@ class App extends Component {
     getFetch(searchValue, page).then(images => {
       this.setState(prevState => {
         return {
-          images: [...prevState.images, ...images],
+          images: [...prevState.images, ...images.hits],
           page: prevState.page + 1,
         };
       });
@@ -99,7 +99,7 @@ class App extends Component {
         <SearchBar onSubmit={this.getSearchValue} />
         {loading && <Loader />}
         <ImageGallery images={images} onModalOpen={this.onOpenModal} />
-        {images.length > 0 ? (
+        {images.length >= 12 && (
           <Button
             content="Load more"
             isIcon
@@ -108,7 +108,7 @@ class App extends Component {
             styledType="blue"
             onClick={this.handleLoad}
           />
-        ) : null}
+        )}
         {showModal && <Modal onClose={this.toggleModal} largeImgUrl={largeImageURL} />}
       </Container>
     );
