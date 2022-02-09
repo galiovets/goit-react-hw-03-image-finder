@@ -28,7 +28,7 @@ class App extends Component {
         loading: true,
       });
       getFetch(searchValue, 1).then(images => {
-        if (images.hits.length === 0) {
+        if (images.length === 0) {
           toast.error('Sorry, nothing was found', {
             duration: 3000,
             style: {
@@ -43,7 +43,7 @@ class App extends Component {
         } else {
           this.setState(prevState => {
             return {
-              images: [...prevState.images, ...images.hits],
+              images: [...prevState.images, ...images],
               page: prevState.page + 1,
               loading: false,
             };
@@ -62,7 +62,7 @@ class App extends Component {
     getFetch(searchValue, page).then(images => {
       this.setState(prevState => {
         return {
-          images: [...prevState.images, ...images.hits],
+          images: [...prevState.images, ...images],
           page: prevState.page + 1,
         };
       });
