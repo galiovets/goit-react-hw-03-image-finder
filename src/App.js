@@ -17,6 +17,7 @@ class App extends Component {
     showModal: false,
     largeImageURL: '',
     loading: false,
+    availableImages: 0,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -26,9 +27,10 @@ class App extends Component {
         page: 1,
         images: [],
         loading: true,
+        availableImages: 0,
       });
       getFetch(searchValue, 1).then(images => {
-        if (images.length === 0) {
+        if (images.hits.length === 0) {
           toast.error('Sorry, nothing was found', {
             duration: 3000,
             style: {
@@ -43,9 +45,10 @@ class App extends Component {
         } else {
           this.setState(prevState => {
             return {
-              images: [...prevState.images, ...images],
+              images: [...prevState.images, ...images.hits],
               page: prevState.page + 1,
               loading: false,
+              availableImages: images.totalHits,
             };
           });
         }
@@ -62,7 +65,7 @@ class App extends Component {
     getFetch(searchValue, page).then(images => {
       this.setState(prevState => {
         return {
-          images: [...prevState.images, ...images],
+          images: [...prevState.images, ...images.hits],
           page: prevState.page + 1,
         };
       });
@@ -92,14 +95,14 @@ class App extends Component {
   };
 
   render() {
-    const { loading, images, showModal, largeImageURL } = this.state;
+    const { loading, images, showModal, largeImageURL, availableImages } = this.state;
     return (
       <Container>
         <Toaster position="bottom-center" />
         <SearchBar onSubmit={this.getSearchValue} />
         {loading && <Loader />}
         <ImageGallery images={images} onModalOpen={this.onOpenModal} />
-        {images.length >= 12 && (
+        {availableImages > images.length && (
           <Button
             content="Load more"
             isIcon
