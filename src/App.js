@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { Component } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import './App.css';
 import { getFetch } from './services/API';
@@ -9,26 +9,26 @@ import ImageGallery from './components/ImageGallery';
 import Button from './components/Button';
 import Modal from './components/Modal';
 
-export default function App() {
-  const [searchValue, setSearchValue] = useState('');
-  const [page, setPage] = useState(1);
-  const [images, setImages] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [largeImageURL, setLargeImageURL] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [availableImages, setAvailableImages] = useState(0);
+class App extends Component {
+  state = {
+    searchValue: '',
+    page: 1,
+    images: [],
+    showModal: false,
+    largeImageURL: '',
+    loading: false,
+    availableImages: 0,
+  };
 
-  useEffect(() => {
-    if (searchValue === '') {
-      return;
-    }
-
-    setPage(1);
-    setImages([]);
-    setLoading(true);
-    setAvailableImages(0);
-
-    const fetch = () => {
+  componentDidUpdate(prevProps, prevState) {
+    const { searchValue } = this.state;
+    if (searchValue !== prevState.searchValue) {
+      this.setState({
+        page: 1,
+        images: [],
+        loading: true,
+        availableImages: 0,
+      });
       getFetch(searchValue, 1).then(images => {
         if (images.hits.length === 0) {
           toast.error('Sorry, nothing was found', {
@@ -41,32 +41,39 @@ export default function App() {
               textAlign: 'center',
             },
           });
-          return setLoading(false);
+          return this.setState({ loading: false });
         } else {
-          setImages(prevState => [...prevState, ...images.hits]);
-          setPage(prevState => prevState + 1);
-          setLoading(false);
-          setAvailableImages(images.totalHits);
+          this.setState(prevState => {
+            return {
+              images: [...prevState.images, ...images.hits],
+              page: prevState.page + 1,
+              loading: false,
+              availableImages: images.totalHits,
+            };
+          });
         }
       });
-    };
-    fetch();
-  }, [searchValue]);
-
-  const getSearchValue = searchValue => {
-    setSearchValue(searchValue.toLowerCase());
+    }
+  }
+  getSearchValue = searchValue => {
+    this.setState({ searchValue: searchValue.toLowerCase() });
   };
 
-  const handleLoad = () => {
+  handleLoad = () => {
+    const { page, searchValue } = this.state;
     getFetch(searchValue, page).then(images => {
-      setImages(prevState => [...prevState, ...images.hits]);
-      setPage(prevState => prevState + 1);
+      this.setState(prevState => {
+        return {
+          images: [...prevState.images, ...images.hits],
+          page: prevState.page + 1,
+        };
+      });
     });
 
-    handleScroll();
+    this.handleScroll();
   };
 
-  const handleScroll = () => {
+  handleScroll = () => {
     setTimeout(() => {
       window.scrollTo({
         top: document.documentElement.scrollHeight,
@@ -75,32 +82,39 @@ export default function App() {
     }, 500);
   };
 
-  const toggleModal = () => {
-    setShowModal(prevState => !prevState);
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
   };
 
-  const onOpenModal = evt => {
-    setLargeImageURL(evt.target.dataset.source);
-    toggleModal();
+  onOpenModal = event => {
+    this.setState({ largeImageURL: event.target.dataset.source });
+    this.toggleModal();
   };
 
-  return (
-    <Container>
-      <Toaster position="bottom-center" />
-      <SearchBar onSubmit={getSearchValue} />
-      {loading && <Loader />}
-      <ImageGallery images={images} onModalOpen={onOpenModal} />
-      {availableImages > images.length && (
-        <Button
-          content="Load more"
-          isIcon
-          iconId="load"
-          fill="white"
-          styledType="blue"
-          onClick={handleLoad}
-        />
-      )}
-      {showModal && <Modal onClose={toggleModal} largeImgUrl={largeImageURL} />}
-    </Container>
-  );
+  render() {
+    const { loading, images, showModal, largeImageURL, availableImages } = this.state;
+    return (
+      <Container>
+        <Toaster position="bottom-center" />
+        <SearchBar onSubmit={this.getSearchValue} />
+        {loading && <Loader />}
+        <ImageGallery images={images} onModalOpen={this.onOpenModal} />
+        {availableImages > images.length && (
+          <Button
+            content="Load more"
+            isIcon
+            iconId="load"
+            fill="white"
+            styledType="blue"
+            onClick={this.handleLoad}
+          />
+        )}
+        {showModal && <Modal onClose={this.toggleModal} largeImgUrl={largeImageURL} />}
+      </Container>
+    );
+  }
 }
+
+export default App;
